@@ -28,6 +28,10 @@ def lambda_handler(event, context):
 
     logger.info(f'Event: {event}')
 
+    logger.info(f'Looking for GKZ in event')
+    
+    gkz = int(event['queryStringParameters']['GKZ'])
+
     logger.info('Getting data')
     df = pandas.read_csv('https://www.apps.nlga.niedersachsen.de/corona/download.php?csv_tag_region-file',
                          delimiter=";",
@@ -38,9 +42,9 @@ def lambda_handler(event, context):
                                   '7-Tagesinzidenz pro 100.000 Einwohner']
                          )
 
-    logger.info(f'Parsing for GKZ: {event["GKZ"]}')
+    logger.info(f'Parsing for GKZ: {gkz}')
 
-    df = df.query(f'GKZ == {event["GKZ"]}').set_index(
+    df = df.query(f'GKZ == {gkz}').set_index(
         'Meldedatum').drop(['GKZ'], axis=1).sort_index().tail(8)
 
     df = df.tz_localize('Europe/Berlin')
