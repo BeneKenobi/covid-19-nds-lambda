@@ -1,3 +1,4 @@
+**Disclaimer: This is just a hobby-project to play with GitHubActions, AWS Lambda/ECR and finally JavaScript/Scriptable (see https://gist.github.com/BeneKenobi/340a99e202f52c1d28d4d8095aabb0ab). There are a couple of easier, direct approaches to do this (like handling everything just in the Scriptable JavaScript).**
 # covid-19-nds-lambda
 AWS Lambda function to parse the covid-19 data of the state Niedersachsen (Germany).
 
