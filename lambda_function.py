@@ -1,5 +1,7 @@
 import logging
+import json
 import pandas
+from urllib.error import HTTPError, URLError
 
 # Fälle pro Landkreis (Anzahl, Inzidenz, 7-Tagesinzidenz, Todesfälle)
 # https://www.apps.nlga.niedersachsen.de/corona/download.php?csv-file
@@ -29,18 +31,39 @@ def lambda_handler(event, context):
     logger.info(f'Event: {event}')
 
     logger.info(f'Looking for GKZ in event')
-    
+
     gkz = int(event['queryStringParameters']['GKZ'])
 
     logger.info('Getting data')
-    df = pandas.read_csv('https://www.apps.nlga.niedersachsen.de/corona/download.php?csv_tag_region-file',
-                         delimiter=";",
-                         header=0,
-                         dayfirst=True,
-                         parse_dates=[0],
-                         usecols=['Meldedatum', 'GKZ',
-                                  '7-Tagesinzidenz pro 100.000 Einwohner']
-                         )
+    try:
+        df = pandas.read_csv('https://www.apps.nlga.niedersachsen.de/corona/download.php?csv_tag_region-file',
+                             delimiter=";",
+                             header=0,
+                             dayfirst=True,
+                             parse_dates=[0],
+                             usecols=['Meldedatum', 'GKZ',
+                                      '7-Tagesinzidenz pro 100.000 Einwohner']
+                             )
+    except HTTPError as e:
+        return {
+            "statusCode": e.code,
+            "headers": {
+                "Content-Type": "application/json"
+            },
+            "body": json.dumps({
+                "Msg ": str(e.reason)
+            })
+        }
+    except URLError as e:
+        return {
+            "statusCode": 500,
+            "headers": {
+                "Content-Type": "application/json"
+            },
+            "body": json.dumps({
+                "Msg ": str(e.reason)
+            })
+        }
 
     logger.info(f'Parsing for GKZ: {gkz}')
 
